@@ -38,13 +38,15 @@ echo "Image: $REGISTRY/$REPO"
 
 tkn task start --param IMAGE=$REGISTRY/$REPO --use-param-defaults --workspace name=source,emptyDir="" --workspace name=dockerconfig,secret=quay kaniko-chains --showlog
 
+sleep 5
+
 echo "=============="
 echo "cosign verify --key cosign.pub $REGISTRY/$REPO"
 cosign verify --key cosign.pub $REGISTRY/$REPO
 
 echo "=============="
 echo "cosign verify-attestation --key cosign.pub $REGISTRY/$REPO"
-cosign verify-attestation --key cosign.pub $REGISTRY/$REPO
+cosign verify-attestation --key cosign.pub --type slsaprovenance $REGISTRY/$REPO
 
 IMAGE_DIGEST=$(tkn tr describe --last -o jsonpath="{.status.taskResults[?(@.name=='IMAGE_DIGEST')].value}" | cut -d':' -f2)
 UUID=$(rekor-cli search --sha $IMAGE_DIGEST)
