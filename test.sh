@@ -26,7 +26,7 @@ sleep 5
 tkn tr logs -f --last
 
 echo "=============="
-export TASKRUN_UID=$(tkn tr describe --last -o  jsonpath='{.metadata.uid}')
+export TASKRUN_UID=$(tkn tr describe --last -o jsonpath='{.metadata.uid}')
 tkn tr describe --last -o jsonpath="{.metadata.annotations.chains\.tekton\.dev/signature-taskrun-$TASKRUN_UID}" | base64 -d > sig
 
 # cosign <2.0.0
