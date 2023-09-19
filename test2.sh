@@ -3,7 +3,7 @@
 set +x
 
 oc delete secret signing-secrets -n openshift-pipelines --ignore-not-found
-COSIGN_BIN=cosign-2.0.1
+COSIGN_BIN=cosign-2.1.1
 
 COSIGN_PASSWORD="" $COSIGN_BIN generate-key-pair k8s://openshift-pipelines/signing-secrets
 echo "=============="
@@ -34,6 +34,9 @@ oc apply -f kaniko.yaml
 
 echo "Image: $REGISTRY/$REPO:$TAG"
 
+echo "Sleep for 60s"
+sleep 60
+
 tkn task start --param IMAGE=$REGISTRY/$REPO:$TAG --use-param-defaults --workspace name=source,emptyDir="" --workspace name=dockerconfig,secret=quay kaniko-chains --showlog
 
 sleep 5
@@ -52,7 +55,7 @@ $COSIGN_BIN verify-attestation --key cosign.pub --type slsaprovenance $REGISTRY/
 echo "=============="
 
 echo "rekor-cli search --format json --sha $IMAGE_DIGEST | jq -r '.UUIDs[0]'"
-REKOR_UUID=$(rekor-cli search --format json --sha $IMAGE_DIGEST | jq -r '.UUIDs[0])'
+REKOR_UUID=$(rekor-cli search --format json --sha $IMAGE_DIGEST | jq -r '.UUIDs[0]')
 echo "=============="
 
 echo "rekor-cli get --uuid $REKOR_UUID --format json | jq -r .Attestation | jq"

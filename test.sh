@@ -4,7 +4,7 @@ set +x
 
 oc delete secret signing-secrets -n openshift-pipelines --ignore-not-found
 #COSIGN_BIN=cosign-1.13.1
-COSIGN_BIN=cosign-2.0.1
+COSIGN_BIN=cosign-2.1.1
 
 COSIGN_PASSWORD=xxx $COSIGN_BIN generate-key-pair k8s://openshift-pipelines/signing-secrets
 #skopeo generate-sigstore-key --output-prefix test-key --passphrase-file passphrase
