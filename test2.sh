@@ -8,7 +8,7 @@ COSIGN_BIN=cosign-2.2.1
 oc delete project $NAMESPACE --ignore-not-found
 sleep 15
 
-oc patch tektonconfig config --type=merge -p='{"spec":{"chain":{"artifacts.taskrun.format":"slsa/v1","artifacts.taskrun.storage":"oci","transparency.enabled":"true"}}}'
+oc patch tektonconfig config --type=merge -p='{"spec":{"chain":{"artifacts.taskrun.format":"slsa/v1","artifacts.taskrun.storage":"oci","artifacts.oci.storage":"oci","transparency.enabled":"true"}}}'
 
 #echo "=============="
 #echo "Logging in as non-admin user"
@@ -43,8 +43,10 @@ echo "$COSIGN_BIN verify-attestation --key cosign.pub --type slsaprovenance $REG
 $COSIGN_BIN verify-attestation --key cosign.pub --type slsaprovenance $REGISTRY/$REPO@sha256:$IMAGE_DIGEST
 echo "=============="
 
-echo "rekor-cli search --format json --sha $IMAGE_DIGEST | jq -r '.UUIDs[0]'"
-REKOR_UUID=$(rekor-cli search --format json --sha $IMAGE_DIGEST | jq -r '.UUIDs[0]')
+echo "rekor-cli search --format json --sha $IMAGE_DIGEST"
+OUT=$(rekor-cli search --format json --sha $IMAGE_DIGEST)
+echo $OUT
+REKOR_UUID=$(echo $OUT | jq -r '.UUIDs[0]')
 echo "=============="
 
 echo "rekor-cli get --uuid $REKOR_UUID --format json | jq -r .Attestation | jq"
