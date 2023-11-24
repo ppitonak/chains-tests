@@ -2,27 +2,19 @@
 
 set +x
 
-oc delete secret signing-secrets -n openshift-pipelines --ignore-not-found
 #COSIGN_BIN=cosign-1.13.1
-COSIGN_BIN=cosign-2.1.1
+COSIGN_BIN=cosign-2.2.1
+NAMESPACE=chainstest
 
-COSIGN_PASSWORD=xxx $COSIGN_BIN generate-key-pair k8s://openshift-pipelines/signing-secrets
-#skopeo generate-sigstore-key --output-prefix test-key --passphrase-file passphrase
-#base64 test-key.pub > test-key-b64.pub
-#base64 test-key.private > test-key-b64.private
-#cat passphrase | base64 > test-key-b64.passphrase
+oc delete project $NAMESPACE --ignore-not-found
+sleep 15
 
 oc patch tektonconfig config --type=merge -p='{"spec":{"chain":{"artifacts.taskrun.format":"in-toto","artifacts.taskrun.storage":"tekton","artifacts.oci.storage":""}}}'
 
-oc delete po -n openshift-pipelines -l app=tekton-chains-controller
-
-NAMESPACE=chainstest
 oc new-project $NAMESPACE
 sleep 10
 
 oc create -f task-output-image.yaml
-sleep 5
-
 tkn tr logs -f --last
 
 echo "=============="
