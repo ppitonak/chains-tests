@@ -31,8 +31,8 @@ echo "Image: $REGISTRY/$REPO:$TAG"
 tkn task start --param IMAGE=$REGISTRY/$REPO:$TAG --use-param-defaults --workspace name=source,emptyDir="" --workspace name=dockerconfig,secret=quay kaniko-chains --showlog
 
 IMAGE_DIGEST=$(tkn tr describe --last -o json | jq -r  '.status.results[] | select(.name | test("IMAGE_DIGEST")).value' | cut -d":" -f2)
-echo "Waiting 90 seconds for images to appear in image registry"
-sleep 90
+echo "Waiting 30 seconds for images to appear in image registry"
+sleep 30
 echo "=============="
 
 echo "$COSIGN_BIN verify --key cosign.pub $REGISTRY/$REPO@sha256:$IMAGE_DIGEST"
